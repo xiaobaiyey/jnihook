@@ -29,7 +29,7 @@ set(HOOKSRC ./../Hook/Helper.cpp
         ${INSTRUCTION})
 
 
-set(JNISRC JniHook.cpp main.cpp)
+set(JNISRC JniHook.cpp main.cpp fake_dlfcn.cpp VM.cpp)
 
 add_library(jnihook
         SHARED
