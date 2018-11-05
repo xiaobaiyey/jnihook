@@ -1,4 +1,4 @@
-﻿﻿### 用途
+### 用途
 
 用于hook JNI相关函数
 
@@ -10,12 +10,56 @@
 
 ```c++
 
+/**
+ * 创建一个类继承JNIInterface
+ * 用于实现所要hook的方法
+ */
 class Test : public JNIInterface {
 public:
+
     void NewStringUTF(JNIEnv *env, const char *string) override {
         JNIInterface::NewStringUTF(env, string);
         //此处用编写拦截 代码
-        LOGI(string);
+        LOGI("%s",string);
+    }
+
+    void
+    GetMethodID(JNIEnv *env, jclass jclass1, const char *string, const char *string1) override {
+        JNIInterface::GetMethodID(env, jclass1, string, string1);
+        VM *vm = VM::getInstance();
+        const char *class_name = vm->getClasstName(jclass1);
+        LOGI("Class:%s Method:%s%s", class_name, string, string1);
+    }
+
+    void GetFieldID(JNIEnv *env, jclass jclass1, const char *string, const char *string1) override {
+        JNIInterface::GetFieldID(env, jclass1, string, string1);
+        VM *vm = VM::getInstance();
+        const char *class_name = vm->getClasstName(jclass1);
+        LOGI("Class:%s Field:%s:%s", class_name, string, string1);
+    }
+
+    void FindClass(JNIEnv *env, const char *string) override {
+        JNIInterface::FindClass(env, string);
+        LOGI("%s",string);
+    }
+
+    void CallObjectMethodV(JNIEnv *env, jobject jobject1, jmethodID id, va_list list) override {
+        JNIInterface::CallObjectMethodV(env, jobject1, id, list);
+        VM *vm = VM::getInstance();
+        const char *class_name = vm->getObjectName(jobject1);
+        char *method_name = vm->getMethodName(id);
+        LOGI("Class:%s Method:%s", class_name, method_name);
+        delete method_name;
+
+    }
+
+    void CallObjectMethodA(JNIEnv *env, jobject jobject1, jmethodID id, jvalue *jvalue1) override {
+        JNIInterface::CallObjectMethodA(env, jobject1, id, jvalue1);
+        VM *vm = VM::getInstance();
+        const char *class_name = vm->getObjectName(jobject1);
+        char *method_name = vm->getMethodName(id);
+        LOGI("Class:%s Method:%s", class_name, method_name);
+        delete method_name;
     }
 };
 
@@ -38,9 +82,6 @@ public:
 
 ![](./test.png)
 
-### 其他
-
-只测试了几个常规函数，非常规没测试,后面会补充通过 jobjet、jclass 等拿到对应的类名和方法名
 
 ### 参考
 
